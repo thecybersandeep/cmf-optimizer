@@ -57,6 +57,8 @@ sol = gradient_optimize_cmf(degree=2, ansatz='neg_x_neg', n_trials=50)
 
 verified correct on all known CMFs. finds valid families. the algebraic structure that makes f·f̄ separate while satisfying the linear condition is very restrictive at higher degrees.
 
+The hard part is still open as finding CMFs at degree 4+ that yield new mathematical constants. 
+
 ## deps
 
 ```
