@@ -1,10 +1,10 @@
 # cmf-optimizer
 
-implementation of gradient-based CMF discovery for the [ramanujan machine project](https://www.ramanujanmachine.com/find-new-conservative-matrix-fields-using-optimization-algorithms/)
+implementation of gradient-based CMF discovery for the [ramanujan machine project]
 
 ## the problem with naive optimization
 
-the challenge looks simple - minimize `||M_X·M_Y(x+1) - M_Y·M_X(y+1)||`. but if you just parameterize M_X and M_Y as generic polynomial matrices and throw gradient descent at it, you get nowhere. the conservation constraint is highly non-convex and you land in trivial local minima every time.
+the challenge looks simple  minimize `||M_X·M_Y(x+1) - M_Y·M_X(y+1)||`. but if you just parameterize M_X and M_Y as generic polynomial matrices and throw gradient descent at it, you get nowhere. the conservation constraint is highly non-convex and you land in trivial local minima every time.
 
 ## what actually works
 
@@ -52,7 +52,7 @@ sol = gradient_optimize_cmf(degree=2, ansatz='neg_x_neg', n_trials=50)
 
 ## status
 
-verified correct on all known CMFs. finds valid families. the open problem - discovering CMFs that yield *new* constants - remains hard. the algebraic structure that makes f·f̄ separate while satisfying the linear condition is very restrictive at higher degrees.
+verified correct on all known CMFs. finds valid families. the algebraic structure that makes f·f̄ separate while satisfying the linear condition is very restrictive at higher degrees.
 
 ## deps
 
