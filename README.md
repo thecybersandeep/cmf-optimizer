@@ -6,6 +6,9 @@ implementation of gradient-based CMF discovery for the [ramanujan machine projec
 
 the challenge looks simple  minimize `||M_X·M_Y(x+1) - M_Y·M_X(y+1)||`. but if you just parameterize M_X and M_Y as generic polynomial matrices and throw gradient descent at it, you get nowhere. the conservation constraint is highly non-convex and you land in trivial local minima every time.
 
+<img width="1878" height="1532" alt="image" src="https://github.com/user-attachments/assets/6ca4f817-e12f-419b-a47d-f6793b0a4702" />
+
+
 ## what actually works
 
 the trick is realizing that all known CMFs come from the f,f̄ construction - and more importantly, f̄ is never independent of f. looking at the known solutions:
