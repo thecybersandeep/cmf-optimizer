@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Continued Fraction Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+        
+        .subtitle a {
+            color: #666;
+            text-decoration: none;
+            border-bottom: 1px solid #333;
+        }
+        
+        .subtitle a:hover {
+            color: #888;
+        }
+        
+        .input-section {
+            background: #141414;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            font-family: 'SF Mono', Monaco, monospace;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4a9eff;
+        }
+        
+        input::placeholder {
+            color: #444;
+        }
+        
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .hint {
+            font-size: 0.8rem;
+            color: #555;
+            margin-top: 6px;
+        }
+        
+        .hint code {
+            background: #1a1a1a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px 24px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            background: #e0e0e0;
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .results {
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .result-card {
+            background: #141414;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+        
+        .result-card h3 {
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .result-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #fff;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+        
+        .result-value.small {
+            font-size: 1.2rem;
+        }
+        
+        .result-detail {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        .metric {
+            background: #0a0a0a;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #4a9eff;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+        
+        .metric-label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+        
+        .convergents-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+        }
+        
+        .convergents-table th {
+            text-align: left;
+            padding: 12px 16px;
+            color: #666;
+            font-weight: 500;
+            border-bottom: 1px solid #222;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        
+        .convergents-table td {
+            padding: 10px 16px;
+            border-bottom: 1px solid #1a1a1a;
+            color: #aaa;
+        }
+        
+        .convergents-table tr:hover td {
+            background: #1a1a1a;
+        }
+        
+        .chart-container {
+            height: 200px;
+            margin-top: 16px;
+            position: relative;
+        }
+        
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        .presets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        
+        .preset-btn {
+            padding: 8px 16px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #888;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: auto;
+        }
+        
+        .preset-btn:hover {
+            background: #222;
+            color: #fff;
+            border-color: #444;
+            transform: none;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-left: 12px;
+        }
+        
+        .status-badge.converges {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+        
+        .status-badge.diverges {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .status-badge.slow {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+        
+        .formula-display {
+            background: #0a0a0a;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 1.1rem;
+            color: #fff;
+            overflow-x: auto;
+        }
+        
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #444;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            .row, .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .result-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Continued Fraction Analyzer</h1>
+        <p class="subtitle">Convergence rate, irrationality measure & more</p>
+        
+        <div class="input-section">
+            <label>Presets</label>
+            <div class="presets">
+                <button class="preset-btn" onclick="setPreset('golden')">φ (Golden)</button>
+                <button class="preset-btn" onclick="setPreset('e')">e</button>
+                <button class="preset-btn" onclick="setPreset('pi')">π</button>
+                <button class="preset-btn" onclick="setPreset('sqrt2')">√2</button>
+                <button class="preset-btn" onclick="setPreset('zeta3')">ζ(3)</button>
+                <button class="preset-btn" onclick="setPreset('ln2')">ln(2)</button>
+            </div>
+            
+            <div class="input-group">
+                <label>Partial numerators b(n)</label>
+                <input type="text" id="b_n" placeholder="e.g., 1 or n^2 or n*(n+1)">
+                <p class="hint">Use <code>n</code> as variable. Examples: <code>1</code>, <code>n^2</code>, <code>-n^2</code></p>
+            </div>
+            
+            <div class="input-group">
+                <label>Partial denominators a(n)</label>
+                <input type="text" id="a_n" placeholder="e.g., 2*n+1 or n+1">
+                <p class="hint">Examples: <code>2*n+1</code>, <code>n</code>, <code>6</code></p>
+            </div>
+            
+            <div class="row">
+                <div class="input-group">
+                    <label>Initial term a(0)</label>
+                    <input type="text" id="a_0" placeholder="e.g., 1" value="1">
+                </div>
+                <div class="input-group">
+                    <label>Number of terms</label>
+                    <input type="number" id="n_terms" value="50" min="5" max="200">
+                </div>
+            </div>
+            
+            <button onclick="analyze()">Analyze</button>
+        </div>
+        
+        <div class="results" id="results">
+            <div class="result-card">
+                <h3>Limit Value <span class="status-badge" id="convergence-badge"></span></h3>
+                <div class="result-value" id="limit-value">—</div>
+                <div class="result-detail" id="limit-detail"></div>
+            </div>
+            
+            <div class="result-card">
+                <h3>Formula</h3>
+                <div class="formula-display" id="formula-display">—</div>
+            </div>
+            
+            <div class="result-card">
+                <h3>Metrics</h3>
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-value" id="conv-rate">—</div>
+                        <div class="metric-label">Convergence Rate</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="irr-measure">—</div>
+                        <div class="metric-label">Irrationality Measure</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="digits-per-term">—</div>
+                        <div class="metric-label">Digits/Term</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="result-card">
+                <h3>Convergence Plot</h3>
+                <div class="chart-container">
+                    <canvas id="chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="result-card">
+                <h3>Convergents</h3>
+                <div style="overflow-x: auto;">
+                    <table class="convergents-table" id="convergents-table">
+                        <thead>
+                            <tr>
+                                <th>n</th>
+                                <th>pₙ</th>
+                                <th>qₙ</th>
+                                <th>pₙ/qₙ</th>
+                                <th>Error</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>© 2026 A Project by Sandeep</footer>
+    
+    <script>
+        const presets = {
+            golden: { a0: '1', an: '1', bn: '1', name: 'Golden Ratio φ' },
+            e: { a0: '2', an: 'n==1?1:(n%3==2?2*Math.floor(n/3+1):1)', bn: '1', name: 'Euler\'s number e' },
+            pi: { a0: '0', an: '2*n-1', bn: 'n==1?4:Math.pow(n-1,2)', name: 'π (Leibniz-like)' },
+            sqrt2: { a0: '1', an: '2', bn: '1', name: '√2' },
+            zeta3: { a0: '0', an: '2*n-1', bn: 'n==1?1:-Math.pow(n-1,6)', name: 'Apéry ζ(3) related' },
+            ln2: { a0: '0', an: '1', bn: 'n==1?1:Math.pow(Math.ceil(n/2),2)*(n%2==0?-1:1)', name: 'ln(2)' }
+        };
+        
+        function setPreset(name) {
+            const p = presets[name];
+            if (p) {
+                document.getElementById('a_0').value = p.a0;
+                document.getElementById('a_n').value = p.an;
+                document.getElementById('b_n').value = p.bn;
+            }
+        }
+        
+        function parseExpr(expr, n) {
+            try {
+                expr = expr.replace(/\^/g, '**');
+                return eval(expr);
+            } catch {
+                return NaN;
+            }
+        }
+        
+        function computeConvergents(a0, aFunc, bFunc, nTerms) {
+            const convergents = [];
+            
+            let p_prev2 = 1n, p_prev1 = BigInt(Math.round(a0));
+            let q_prev2 = 0n, q_prev1 = 1n;
+            
+            convergents.push({
+                n: 0,
+                p: p_prev1,
+                q: q_prev1,
+                value: Number(p_prev1) / Number(q_prev1)
+            });
+            
+            for (let n = 1; n <= nTerms; n++) {
+                const a_n = aFunc(n);
+                const b_n = bFunc(n);
+                
+                if (isNaN(a_n) || isNaN(b_n)) break;
+                
+                const a_big = BigInt(Math.round(a_n));
+                const b_big = BigInt(Math.round(b_n));
+                
+                const p_n = a_big * p_prev1 + b_big * p_prev2;
+                const q_n = a_big * q_prev1 + b_big * q_prev2;
+                
+                if (q_n === 0n) break;
+                
+                convergents.push({
+                    n,
+                    p: p_n,
+                    q: q_n,
+                    value: Number(p_n) / Number(q_n)
+                });
+                
+                p_prev2 = p_prev1;
+                p_prev1 = p_n;
+                q_prev2 = q_prev1;
+                q_prev1 = q_n;
+            }
+            
+            return convergents;
+        }
+        
+        function estimateIrrationalityMeasure(convergents, limit) {
+            if (convergents.length < 10) return NaN;
+            
+            const measures = [];
+            for (let i = Math.floor(convergents.length / 2); i < convergents.length - 1; i++) {
+                const c = convergents[i];
+                const q = Number(c.q);
+                const error = Math.abs(c.value - limit);
+                
+                if (error > 0 && q > 1) {
+                    const mu = -Math.log(error) / Math.log(q);
+                    if (isFinite(mu) && mu > 0) {
+                        measures.push(mu);
+                    }
+                }
+            }
+            
+            if (measures.length === 0) return NaN;
+            return measures.reduce((a, b) => a + b) / measures.length;
+        }
+        
+        function analyze() {
+            const a0 = parseFloat(document.getElementById('a_0').value) || 0;
+            const anExpr = document.getElementById('a_n').value;
+            const bnExpr = document.getElementById('b_n').value;
+            const nTerms = parseInt(document.getElementById('n_terms').value) || 50;
+            
+            const aFunc = (n) => parseExpr(anExpr, n);
+            const bFunc = (n) => parseExpr(bnExpr, n);
+            
+            const convergents = computeConvergents(a0, aFunc, bFunc, nTerms);
+            
+            if (convergents.length < 3) {
+                alert('Could not compute enough convergents. Check your formulas.');
+                return;
+            }
+            
+            document.getElementById('results').classList.add('show');
+            
+            // Limit value
+            const limit = convergents[convergents.length - 1].value;
+            const prevLimit = convergents[convergents.length - 2].value;
+            const limitStr = limit.toPrecision(15);
+            
+            document.getElementById('limit-value').textContent = limitStr;
+            
+            // Check convergence
+            const lastErrors = [];
+            for (let i = Math.max(0, convergents.length - 5); i < convergents.length - 1; i++) {
+                lastErrors.push(Math.abs(convergents[i].value - limit));
+            }
+            const isConverging = lastErrors.every((e, i) => i === 0 || e <= lastErrors[i-1] * 1.1);
+            const errorDiff = Math.abs(limit - prevLimit);
+            
+            const badge = document.getElementById('convergence-badge');
+            if (isConverging && errorDiff < 1e-10) {
+                badge.textContent = 'Converged';
+                badge.className = 'status-badge converges';
+            } else if (isConverging) {
+                badge.textContent = 'Converging';
+                badge.className = 'status-badge slow';
+            } else {
+                badge.textContent = 'Unstable';
+                badge.className = 'status-badge diverges';
+            }
+            
+            document.getElementById('limit-detail').textContent = 
+                `After ${convergents.length} terms, |Δ| ≈ ${errorDiff.toExponential(2)}`;
+            
+            // Formula display
+            const formula = `a₀ + b₁/(a₁ + b₂/(a₂ + b₃/(a₃ + ...)))`;
+            document.getElementById('formula-display').innerHTML = 
+                `${a0} + ${bnExpr.replace(/n/g, '1')}/(${anExpr.replace(/n/g, '1')} + ${bnExpr.replace(/n/g, '2')}/(${anExpr.replace(/n/g, '2')} + ...))`;
+            
+            // Convergence rate
+            let convRate = NaN;
+            if (convergents.length > 10) {
+                const e1 = Math.abs(convergents[convergents.length - 6].value - limit);
+                const e2 = Math.abs(convergents[convergents.length - 1].value - limit);
+                if (e1 > 0 && e2 > 0) {
+                    convRate = Math.pow(e2 / e1, 1/5);
+                }
+            }
+            document.getElementById('conv-rate').textContent = 
+                isNaN(convRate) ? '—' : convRate.toFixed(4);
+            
+            // Irrationality measure
+            const irrMeasure = estimateIrrationalityMeasure(convergents, limit);
+            document.getElementById('irr-measure').textContent = 
+                isNaN(irrMeasure) ? '—' : `≈ ${irrMeasure.toFixed(2)}`;
+            
+            // Digits per term
+            const q_final = convergents[convergents.length - 1].q;
+            const digitsPerTerm = Math.log10(Number(q_final)) / convergents.length;
+            document.getElementById('digits-per-term').textContent = 
+                isNaN(digitsPerTerm) ? '—' : digitsPerTerm.toFixed(2);
+            
+            // Draw chart
+            drawChart(convergents, limit);
+            
+            // Convergents table
+            const tbody = document.querySelector('#convergents-table tbody');
+            tbody.innerHTML = '';
+            
+            const showIndices = [0, 1, 2, 3, 4, 5, 
+                ...Array.from({length: 5}, (_, i) => convergents.length - 5 + i)
+            ].filter((v, i, a) => v >= 0 && v < convergents.length && a.indexOf(v) === i);
+            
+            let lastShown = -1;
+            showIndices.forEach(i => {
+                if (i > lastShown + 1 && lastShown >= 0) {
+                    const gapRow = document.createElement('tr');
+                    gapRow.innerHTML = '<td colspan="5" style="text-align:center;color:#444">...</td>';
+                    tbody.appendChild(gapRow);
+                }
+                
+                const c = convergents[i];
+                const error = Math.abs(c.value - limit);
+                const row = document.createElement('tr');
+                
+                const pStr = c.p.toString().length > 20 ? 
+                    c.p.toString().slice(0, 10) + '...' + c.p.toString().slice(-8) : c.p.toString();
+                const qStr = c.q.toString().length > 20 ? 
+                    c.q.toString().slice(0, 10) + '...' + c.q.toString().slice(-8) : c.q.toString();
+                
+                row.innerHTML = `
+                    <td>${c.n}</td>
+                    <td>${pStr}</td>
+                    <td>${qStr}</td>
+                    <td>${c.value.toPrecision(10)}</td>
+                    <td>${error.toExponential(2)}</td>
+                `;
+                tbody.appendChild(row);
+                lastShown = i;
+            });
+        }
+        
+        function drawChart(convergents, limit) {
+            const canvas = document.getElementById('chart');
+            const ctx = canvas.getContext('2d');
+            
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width * 2;
+            canvas.height = rect.height * 2;
+            ctx.scale(2, 2);
+            
+            const width = rect.width;
+            const height = rect.height;
+            const padding = { top: 20, right: 20, bottom: 30, left: 60 };
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Compute log errors
+            const data = convergents.slice(1).map((c, i) => ({
+                n: c.n,
+                logError: Math.log10(Math.abs(c.value - limit) + 1e-320)
+            })).filter(d => isFinite(d.logError));
+            
+            if (data.length < 2) return;
+            
+            const xMin = data[0].n;
+            const xMax = data[data.length - 1].n;
+            const yMin = Math.min(...data.map(d => d.logError));
+            const yMax = Math.max(...data.map(d => d.logError));
+            
+            const xScale = (x) => padding.left + (x - xMin) / (xMax - xMin) * (width - padding.left - padding.right);
+            const yScale = (y) => padding.top + (yMax - y) / (yMax - yMin) * (height - padding.top - padding.bottom);
+            
+            // Grid
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = padding.top + i * (height - padding.top - padding.bottom) / 5;
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(width - padding.right, y);
+                ctx.stroke();
+            }
+            
+            // Axes labels
+            ctx.fillStyle = '#666';
+            ctx.font = '10px -apple-system, sans-serif';
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const yVal = yMax - i * (yMax - yMin) / 5;
+                const y = padding.top + i * (height - padding.top - padding.bottom) / 5;
+                ctx.fillText(yVal.toFixed(0), padding.left - 8, y + 3);
+            }
+            
+            ctx.textAlign = 'center';
+            ctx.fillText('n', width / 2, height - 5);
+            
+            ctx.save();
+            ctx.translate(12, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('log₁₀|error|', 0, 0);
+            ctx.restore();
+            
+            // Line
+            ctx.strokeStyle = '#4a9eff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            data.forEach((d, i) => {
+                const x = xScale(d.n);
+                const y = yScale(d.logError);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            // Points
+            ctx.fillStyle = '#4a9eff';
+            data.forEach(d => {
+                const x = xScale(d.n);
+                const y = yScale(d.logError);
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+        
+        // Auto-resize chart on window resize
+        window.addEventListener('resize', () => {
+            if (document.getElementById('results').classList.contains('show')) {
+                analyze();
+            }
+        });
+    </script>
+</body>
+</html>
